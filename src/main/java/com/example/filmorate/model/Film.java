@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Builder
@@ -15,12 +16,14 @@ import java.time.LocalDate;
 public class Film {
     private static final short MAX_LENGTH_DESCRIPTION = 200;
     private int id;
-    @Positive(message = "Продолжительность должна быть положительной")
+    @Positive(message = "Duration must be positive")
     private long duration;
-    //ReleaseDate(min = "1895-12-28", message = "Дата релиза не может быть ранее 28 декабря 1895 года.")
     private LocalDate releaseDate;
-    @NotBlank(message = "Название не может быть пустым")
+    @NotBlank(message = "The name cannot be empty")
     private String title;
-    @Size(max = MAX_LENGTH_DESCRIPTION, message = "Длина описания не может быть больше " + MAX_LENGTH_DESCRIPTION)
+    @Size(max = MAX_LENGTH_DESCRIPTION, message = "The description length cannot be longer " + MAX_LENGTH_DESCRIPTION)
     private String description;
+    private Genre genre;
+    private MPA mpa;
+    private Set<Long> likes;
 }

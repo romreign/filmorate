@@ -2,15 +2,16 @@ package com.example.filmorate.controller;
 
 import com.example.filmorate.exception.FilmNotFoundException;
 import com.example.filmorate.model.Film;
+import com.example.filmorate.service.FilmService;
+import com.example.filmorate.storage.FilmStorage;
+import com.example.filmorate.storage.InMemoryFilmStorage;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 
 @Validated
@@ -18,35 +19,54 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/api/films")
 public class FilmController {
-    private final Map<Integer, Film> filmMap = new HashMap<>();
-    private int autoId = 1;
+    private final FilmStorage inMemoryFilmStorage;
+    private final FilmService filmService;
 
-    private void incId() {
-        ++autoId;
+    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
+        this.inMemoryFilmStorage = inMemoryFilmStorage;
+        this.filmService = filmService;
     }
 
     @GetMapping
     public List<Film> getFilms() {
         log.info("Получение списка фильмов.");
-        return new ArrayList<>(filmMap.values());
+        return inMemoryFilmStorage.getFilms();
+    }
+
+    @GetMapping("/{filmId}")
+    public Film getFilmById(@PathVariable int filmId) {
+        log.info("Получение фильма с id " + filmId);
+        return inMemoryFilmStorage.getFilmById(filmId);
+    }
+
+    @GetMapping("/popular?count={count}")
+    public List<Film> getPopularFilm(@RequestParam int count) {
+        log.info("Получение списка из первых фильмов по количеству лайков. Количество фильмов " + count);
+        return filmService.getPopularFilm(count);
     }
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Создание фильма {}", film.getTitle());
-        film.setId(autoId);
-        filmMap.put(autoId, film);
-        incId();
-        return film;
+        return inMemoryFilmStorage.createFilm(film);
     }
 
     @PutMapping("/{filmId}")
     public Film updateFilm(@PathVariable int filmId, @Valid @RequestBody Film film) {
-        if (!filmMap.containsKey(filmId))
-            throw new FilmNotFoundException("Не найден фильм с id " + filmId);
         log.info("Обновление фильма с id {}", filmId);
-        filmMap.put(filmId, film);
-        return film;
+        return inMemoryFilmStorage.updateFilm(filmId, film);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public Film addFilmLike(@PathVariable int filmId, @PathVariable int userId) {
+        log.info("Пользователь с id " + userId + " ставит лайк фильму с id " + filmId);
+        return filmService.addFilmLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public Film deleteFilmLike(@PathVariable int filmId, @PathVariable int userId) {
+        log.info("Пользователь с id " + userId + " удаляет лайк у фильма с id " + filmId);
+        return filmService.deleteFilmLike(filmId, userId);
     }
 
     @ExceptionHandler

@@ -1,10 +1,10 @@
 package com.example.filmorate.controller;
 
 import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.InvalidCountFilmException;
+import com.example.filmorate.exception.InvalidIdException;
 import com.example.filmorate.model.Film;
 import com.example.filmorate.service.FilmService;
-import com.example.filmorate.storage.FilmStorage;
-import com.example.filmorate.storage.InMemoryFilmStorage;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,53 +19,51 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/api/films")
 public class FilmController {
-    private final FilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
 
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping
     public List<Film> getFilms() {
-        log.info("Получение списка фильмов.");
-        return inMemoryFilmStorage.getFilms();
+        log.info("Getting a list of movies");
+        return filmService.getFilms();
     }
 
     @GetMapping("/{filmId}")
-    public Film getFilmById(@PathVariable int filmId) {
-        log.info("Получение фильма с id " + filmId);
-        return inMemoryFilmStorage.getFilmById(filmId);
+    public Film getFilmById(@PathVariable long filmId) {
+        log.info("Getting movie with id {}", filmId);
+        return filmService.getFilmById(filmId);
     }
 
     @GetMapping("/popular?count={count}")
-    public List<Film> getPopularFilm(@RequestParam int count) {
-        log.info("Получение списка из первых фильмов по количеству лайков. Количество фильмов " + count);
+    public List<Film> getPopularFilm(@RequestParam(defaultValue = "10") int count) {
+        log.info("Getting a list of the first movies by the number of likes. Number of movies {}", count);
         return filmService.getPopularFilm(count);
     }
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        log.info("Создание фильма {}", film.getTitle());
-        return inMemoryFilmStorage.createFilm(film);
+        log.info("Making a movie {}", film.getTitle());
+        return filmService.createFilm(film);
     }
 
     @PutMapping("/{filmId}")
-    public Film updateFilm(@PathVariable int filmId, @Valid @RequestBody Film film) {
-        log.info("Обновление фильма с id {}", filmId);
-        return inMemoryFilmStorage.updateFilm(filmId, film);
+    public Film updateFilm(@PathVariable long filmId, @Valid @RequestBody Film film) {
+        log.info("Movie update with id {}", filmId);
+        return filmService.updateFilm(filmId, film);
     }
 
-    @PutMapping("/{filmId}/like/{userId}")
-    public Film addFilmLike(@PathVariable int filmId, @PathVariable int userId) {
-        log.info("Пользователь с id " + userId + " ставит лайк фильму с id " + filmId);
+    @PatchMapping("/{filmId}/like/{userId}")
+    public Film addFilmLike(@PathVariable long filmId, @PathVariable long userId) {
+        log.info("User with id {} likes movie with id {}", userId, filmId);
         return filmService.addFilmLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public Film deleteFilmLike(@PathVariable int filmId, @PathVariable int userId) {
-        log.info("Пользователь с id " + userId + " удаляет лайк у фильма с id " + filmId);
+    public Film deleteFilmLike(@PathVariable long filmId, @PathVariable long userId) {
+        log.info("User with id {} removes like from movie with id {}", userId, filmId);
         return filmService.deleteFilmLike(filmId, userId);
     }
 
@@ -73,7 +71,25 @@ public class FilmController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleFilmNotFound(final FilmNotFoundException e) {
         return Map.of(
-                "error", "Ошибка с параметром id",
+                "error", "Film not found",
+                "errorMessage", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleInvalidIdException(final InvalidIdException e) {
+        return Map.of(
+                "error", "Invalid ID provided",
+                "errorMessage", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleInvalidCountFilmException(final InvalidCountFilmException e) {
+        return Map.of(
+                "error", "Invalid film count provided",
                 "errorMessage", e.getMessage()
         );
     }

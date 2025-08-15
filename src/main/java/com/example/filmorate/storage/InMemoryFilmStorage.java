@@ -1,6 +1,5 @@
 package com.example.filmorate.storage;
 
-import com.example.filmorate.exception.FilmNotFoundException;
 import com.example.filmorate.model.Film;
 import org.springframework.stereotype.Component;
 
@@ -9,25 +8,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.filmorate.util.FilmValidation.validateFilmExists;
+
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> filmMap = new HashMap<>();
-    private int autoId = 1;
+    private final Map<Long, Film> filmMap = new HashMap<>();
+    private long autoId = 1;
 
     private void incId() {
         ++autoId;
     }
 
+    @Override
     public List<Film> getFilms() {
         return new ArrayList<>(filmMap.values());
     }
 
-    public Film getFilmById(int filmId) {
-        if (!filmMap.containsKey(filmId))
-            throw new FilmNotFoundException("Не найден фильм с id " + filmId);
+    @Override
+    public Film getFilmById(long filmId) {
+        validateFilmExists(filmMap, filmId);
         return filmMap.get(filmId);
     }
 
+    @Override
     public Film createFilm(Film film) {
         film.setId(autoId);
         filmMap.put(autoId, film);
@@ -35,9 +38,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public Film updateFilm(int filmId, Film film) {
-        if (!filmMap.containsKey(filmId))
-            throw new FilmNotFoundException("Не найден фильм с id " + filmId);
+    @Override
+    public Film updateFilm(long filmId, Film film) {
+        validateFilmExists(filmMap, filmId);
         filmMap.put(filmId, film);
         return film;
     }

@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Film {
     private static final short MAX_LENGTH_DESCRIPTION = 200;
-    private int id;
+    private long id;
     @Positive(message = "Duration must be positive")
     private long duration;
     private LocalDate releaseDate;

@@ -18,15 +18,18 @@ public class InMemoryUserStorage implements UserStorage {
         ++autoId;
     }
 
+    @Override
     public List<User> getUsers() {
         return new ArrayList<>(userMap.values());
     }
 
+    @Override
     public User getUserById(long userId) {
         validateUserExists(userMap, userId);
         return userMap.get(userId);
     }
 
+    @Override
     public User createUser(User user) {
         user.setId(autoId);
         userMap.put(autoId, user);
@@ -35,6 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User updateUser(long userId, User newUser) {
         validateUserExists(userMap, userId);
         if (emailToIdMap.containsKey(newUser.getEmail()))

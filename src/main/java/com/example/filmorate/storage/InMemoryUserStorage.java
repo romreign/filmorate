@@ -2,6 +2,7 @@ package com.example.filmorate.storage;
 
 import com.example.filmorate.exception.EmailAlreadyExistsException;
 import com.example.filmorate.model.User;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -10,6 +11,7 @@ import static com.example.filmorate.util.UserValidation.validateUserExists;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
+    @Getter
     private final Map<Long, User> userMap = new HashMap<>();
     private final Map<String, Long> emailToIdMap = new HashMap<>();
     private long autoId = 1;

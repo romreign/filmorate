@@ -1,6 +1,7 @@
 package com.example.filmorate.storage;
 
 import com.example.filmorate.model.Film;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import static com.example.filmorate.util.FilmValidation.validateFilmExists;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+    @Getter
     private final Map<Long, Film> filmMap = new HashMap<>();
     private long autoId = 1;
 

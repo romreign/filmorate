@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.filmorate.util.IdValidation.validateIdExists;
 
@@ -32,7 +33,7 @@ public class UserService {
         return userStorage.getUsers();
     }
 
-    public User getUserById(long userId) {
+    public Optional<User> getUserById(long userId) {
         validateIdExists(userId);
         return userStorage.getUserById(userId);
     }

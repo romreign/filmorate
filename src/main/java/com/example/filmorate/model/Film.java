@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     private static final short MAX_LENGTH_DESCRIPTION = 200;
     private long id;
@@ -23,7 +25,8 @@ public class Film {
     private String title;
     @Size(max = MAX_LENGTH_DESCRIPTION, message = "The description length cannot be longer " + MAX_LENGTH_DESCRIPTION)
     private String description;
-    private Genre genre;
+    private Set<Genre> genres;
     private MPA mpa;
     private Set<Long> likes;
+    private int likesCount;
 }

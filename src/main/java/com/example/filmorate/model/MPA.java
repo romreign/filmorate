@@ -1,9 +1,15 @@
 package com.example.filmorate.model;
 
-public enum MPA {
-    G,
-    PG,
-    PG_13,
-    R,
-    NC_17
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class MPA {
+    private long id;
+    private String name;
 }

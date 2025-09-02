@@ -1,29 +1,23 @@
 package com.example.filmorate.controller;
 
-import com.example.filmorate.exception.FilmNotFoundException;
-import com.example.filmorate.exception.InvalidCountFilmException;
-import com.example.filmorate.exception.InvalidIdException;
 import com.example.filmorate.model.Film;
 import com.example.filmorate.service.FilmService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Validated
 @RestController
 @Slf4j
 @RequestMapping("/api/films")
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @GetMapping
     public List<Film> getFilms() {
@@ -32,7 +26,7 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film getFilmById(@PathVariable long filmId) {
+    public Optional<Film> getFilmById(@PathVariable long filmId) {
         log.info("Getting movie with id {}", filmId);
         return filmService.getFilmById(filmId);
     }
@@ -65,32 +59,5 @@ public class FilmController {
     public Film deleteFilmLike(@PathVariable long filmId, @PathVariable long userId) {
         log.info("User with id {} removes like from movie with id {}", userId, filmId);
         return filmService.deleteFilmLike(filmId, userId);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleFilmNotFound(final FilmNotFoundException e) {
-        return Map.of(
-                "error", "Film not found",
-                "errorMessage", e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleInvalidIdException(final InvalidIdException e) {
-        return Map.of(
-                "error", "Invalid ID provided",
-                "errorMessage", e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleInvalidCountFilmException(final InvalidCountFilmException e) {
-        return Map.of(
-                "error", "Invalid film count provided",
-                "errorMessage", e.getMessage()
-        );
     }
 }
